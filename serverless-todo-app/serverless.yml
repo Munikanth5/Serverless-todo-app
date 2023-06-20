@@ -1,0 +1,67 @@
+org: munikanth5
+service: todo-app
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  stage: dev
+  region: ap-south-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource:
+        - arn:aws:dynamodb:ap-south-1:351611379399:table/tasks
+
+functions:
+  createTask:
+    handler: createTask.handler
+    events:
+      - http:
+          path: tasks
+          method: post
+          cors: true
+  getTasks:
+    handler: getTasks.handler
+    events:
+      - http:
+          path: tasks
+          method: get
+          cors: true
+  getTask:
+    handler: getTask.handler
+    events:
+      - http:
+          path: tasks/{id}
+          method: get
+          cors: true
+  updateTask:
+    handler: updateTask.handler
+    events:
+      - http:
+          path: tasks/{id}
+          method: put
+          cors: true
+  deleteTask:
+    handler: deleteTask.handler
+    events:
+      - http:
+          path: tasks/{id}
+          method: delete
+          cors: true
+resources:
+  Resources:
+    TasksTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: tasks
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
